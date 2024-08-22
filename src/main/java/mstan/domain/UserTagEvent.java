@@ -1,4 +1,4 @@
-package your.name.here.domain;
+package mstan.domain;
 
 import java.time.Instant;
 
@@ -20,8 +20,7 @@ public class UserTagEvent {
     @JsonProperty("product_info")
     private Product productInfo;
 
-    public UserTagEvent() {
-    }
+    public UserTagEvent() {}
 
     public UserTagEvent(Instant time, String cookie, String country, Device device, Action action, String origin, Product productInfo) {
         this.time = time;
@@ -31,6 +30,34 @@ public class UserTagEvent {
         this.action = action;
         this.origin = origin;
         this.productInfo = productInfo;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        UserTagEvent that = (UserTagEvent) obj;
+        return this.time.equals(that.time) &&
+               this.cookie.equals(that.cookie) &&
+               this.country.equals(that.country) &&
+               this.device == that.device &&
+               this.action == that.action &&
+               this.origin.equals(that.origin) &&
+               this.productInfo.equals(that.productInfo);
+    }
+
+    @Override
+    public String toString() {
+        return "UserTagEvent{" +
+                "time=" + time +
+                ", cookie='" + cookie + '\'' +
+                ", country='" + country + '\'' +
+                ", device=" + device.name() +
+                ", action=" + action.name() +
+                ", origin='" + origin + '\'' +
+                ", productInfo=" + productInfo +
+                '}';
     }
 
     public Instant getTime() {

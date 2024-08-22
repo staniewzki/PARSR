@@ -1,4 +1,4 @@
-package your.name.here.domain;
+package mstan.domain;
 
 public enum Aggregate {
 

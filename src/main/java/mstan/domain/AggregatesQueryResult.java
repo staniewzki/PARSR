@@ -1,4 +1,4 @@
-package your.name.here.domain;
+package mstan.domain;
 
 import java.util.List;
 

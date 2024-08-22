@@ -1,4 +1,4 @@
-package your.name.here.domain;
+package mstan.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -13,6 +13,28 @@ public class Product {
     private int price;
 
     public Product() {
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "productId=" + productId +
+                ", brandId='" + brandId + '\'' +
+                ", categoryId='" + categoryId + '\'' +
+                ", price=" + price +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Product that = (Product) obj;
+        return this.productId == that.productId &&
+               this.brandId.equals(that.brandId) &&
+               this.categoryId.equals(that.categoryId) &&
+               this.price == that.price;
     }
 
     public int getProductId() {

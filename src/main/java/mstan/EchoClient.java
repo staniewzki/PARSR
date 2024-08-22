@@ -1,6 +1,9 @@
 package mstan;
 
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,20 +14,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import your.name.here.domain.Action;
-import your.name.here.domain.Aggregate;
-import your.name.here.domain.AggregatesQueryResult;
-import your.name.here.domain.UserProfileResult;
-import your.name.here.domain.UserTagEvent;
+import mstan.domain.Action;
+import mstan.domain.Aggregate;
+import mstan.domain.AggregatesQueryResult;
+import mstan.domain.TimeRange;
+import mstan.domain.UserProfileResult;
+import mstan.domain.UserTagEvent;
+import mstan.service.UserTagService;
 
 @RestController
 public class EchoClient {
 
     private static final Logger log = LoggerFactory.getLogger(EchoClient.class);
 
+    private final UserTagService userTagService;
+
+    public EchoClient(UserTagService userTagService) throws SQLException {
+        this.userTagService = userTagService;
+    }
+
     @PostMapping("/user_tags")
     public ResponseEntity<Void> addUserTag(@RequestBody(required = false) UserTagEvent userTag) {
-
+        this.userTagService.registerEvent(userTag);
         return ResponseEntity.noContent().build();
     }
 
@@ -33,8 +44,20 @@ public class EchoClient {
             @RequestParam("time_range") String timeRangeStr,
             @RequestParam(defaultValue = "200") int limit,
             @RequestBody(required = false) UserProfileResult expectedResult) {
+        TimeRange range = new TimeRange(timeRangeStr);
+        UserProfileResult resp = this.userTagService.findUserProfiles(cookie, range, limit);
 
-        return ResponseEntity.ok(expectedResult);
+        if (!resp.equals(expectedResult)) {
+            System.out.println("-- wrong answer --");
+            log.warn("---- response ----------");
+            log.warn("views: " + resp.getViews());
+            log.warn("buys: " + resp.getBuys());
+            log.warn("---- expected result ----");
+            log.warn("views: " + expectedResult.getViews());
+            log.warn("buys: " + expectedResult.getBuys());
+        }
+
+        return ResponseEntity.ok(resp);
     }
 
     @PostMapping("/aggregates")
