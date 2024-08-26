@@ -48,8 +48,8 @@ public class EchoClient {
         UserProfileResult resp = this.userTagService.findUserProfiles(cookie, range, limit);
 
         if (!resp.equals(expectedResult)) {
-            System.out.println("-- wrong answer --");
             log.warn("---- response ----------");
+            log.warn("cookie: " + cookie);
             log.warn("views: " + resp.getViews());
             log.warn("buys: " + resp.getBuys());
             log.warn("---- expected result ----");

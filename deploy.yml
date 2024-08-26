@@ -1,0 +1,47 @@
+---
+- name: Deploy Docker Container to Multiple Hosts without Docker Registry
+  hosts: project_hosts
+  become: yes
+  vars:
+    docker_image: "{{ image_name }}"  # Use the passed argument as the image name
+
+  tasks:
+    - name: Ensure Docker is installed
+      ansible.builtin.package:
+        name: docker
+        state: present
+
+    - name: Ensure Python's pip is installed
+      ansible.builtin.package:
+        name: python3-pip  # or python-pip for Python 2
+        state: present
+
+    - name: Install the Docker SDK for Python
+      ansible.builtin.pip:
+        name: docker
+        state: present
+        executable: pip3  # or pip if using Python 2
+
+    - name: Copy Docker image tar file to the remote hosts
+      ansible.builtin.copy:
+        src: "./project-bootstrap.tar"
+        dest: "/tmp/project-bootstrap.tar"
+
+    - name: Load Docker image from tar file
+      ansible.builtin.command:
+        cmd: docker load -i /tmp/project-bootstrap.tar
+      args:
+        chdir: /tmp
+
+    - name: Remove existing container if it exists
+      ansible.builtin.docker_container:
+        name: project
+        state: absent
+
+    - name: Run the Docker container
+      ansible.builtin.docker_container:
+        name: project
+        image: "{{ docker_image }}"
+        state: started
+        restart_policy: always
+        network_mode: host
