@@ -1,6 +1,7 @@
 package mstan;
 
 import java.sql.SQLException;
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,19 @@ public class EchoClient {
             @RequestParam(value = "brand_id", required = false) String brandId,
             @RequestParam(value = "category_id", required = false) String categoryId,
             @RequestBody(required = false) AggregatesQueryResult expectedResult) {
+        log.info("aggregates");
+        AggregatesQueryResult resp = this.userTagService.findAggregates(
+            new TimeRange(timeRangeStr), action, origin, brandId, categoryId, aggregates);
 
-        return ResponseEntity.ok(expectedResult);
+        log.info("--- response agg ---");
+        log.info(resp.getColumns().toString());
+        log.info(resp.getRows().toString());
+        log.info("--- expected agg ---");
+        if (expectedResult != null) {
+            log.info(expectedResult.getColumns().toString());
+            log.info(expectedResult.getRows().toString());
+        }
+
+        return ResponseEntity.ok(resp);
     }
 }

@@ -18,9 +18,34 @@ public class Filters {
         this.categoryId = categoryId;
     }
 
+    public Action getAction() {
+        return action;
+    }
+
+    public String value() {
+        String result = (origin == null ? "<null>" : origin) + "|" +
+                        (brandId == null ? "<null>" : brandId) + "|" +
+                        (categoryId == null ? "<null>" : categoryId);
+        return result;
+    }
+
+    public boolean isFull() {
+        return origin != null && brandId != null && categoryId != null;
+    }
+
     public static List<Filters> allFilters(Action action, String origin, String brandId, String categoryId) {
         List<Filters> result = new ArrayList<>();
-
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                for (int k = 0; k < 2; k++) {
+                    result.add(new Filters(
+                        action,
+                        i == 0 ? origin : null,
+                        j == 0 ? brandId : null,
+                        k == 0 ? categoryId : null));
+                }
+            }
+        }
         return result;
     }
 
@@ -48,6 +73,6 @@ public class Filters {
 
     @Override
     public int hashCode() {
-        return action.hashCode() + 8 * hsh(origin) + 64 * hsh(brandId) + 512 * hsh(categoryId);
+        return action.hashCode() + 2 * hsh(origin) + 64 * hsh(brandId) + 2048 * hsh(categoryId);
     }
 };
