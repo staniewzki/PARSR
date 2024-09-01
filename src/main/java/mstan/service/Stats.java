@@ -1,13 +1,13 @@
 package mstan.service;
 
 public class Stats {
-    private int count = 0;
-    private int sumPrice = 0;
+    private long count = 0;
+    private long sumPrice = 0;
 
-    public int getCount() { return count; }
-    public int getSumPrice() { return sumPrice; }
+    public long getCount() { return count; }
+    public long getSumPrice() { return sumPrice; }
 
-    public void updateWith(int price) {
+    public void updateWith(long price) {
         count += 1;
         sumPrice += price;
     }

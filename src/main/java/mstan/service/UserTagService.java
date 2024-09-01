@@ -99,13 +99,6 @@ public class UserTagService {
                 ListOperation.set("eventList", index % kMaxLimit, com.aerospike.client.Value.get(json)));
         }
 
-        log.info("filters: " + Filters.allFilters(
-                event.getAction(),
-                event.getOrigin(),
-                event.getProductInfo().getBrandId(),
-                event.getProductInfo().getCategoryId()
-            ));
-
         statManager.addEvent(
             timestampToMinutes(event.getTime()),
             Filters.allFilters(
@@ -123,12 +116,10 @@ public class UserTagService {
     public void execute() {
         log.info("execute");
         for (Map.Entry<String, Map<Filters, Stats>> bucket : statManager.drain().entrySet()) {
-            log.info("key: " + bucket.getKey());
             for (Map.Entry<Filters, Stats> entry : bucket.getValue().entrySet()) {
                 Action action = entry.getKey().getAction();
                 String keyName = bucket.getKey() + entry.getKey().value();
                 Key key = new Key("mimuw", aggregateSetName(action), keyName);
-                log.info(key + " count: " + entry.getValue().getCount() + " sumPrice: " + entry.getValue().getSumPrice());
                 client.operate(
                     new WritePolicy(),
                     key,
@@ -206,26 +197,19 @@ public class UserTagService {
         if (aggregatePrice) columns.add("sum_price");
 
         Filters filters = new Filters(action, origin, brandId, categoryId);
-        // log.info("filters value: " + filters.value());
         for (Instant bucket = range.getBegin(); bucket.isBefore(range.getEnd()); bucket = bucket.plus(Duration.ofMinutes(1))) {
             String timestamp = timestampToMinutes(bucket);
             String keyName = timestamp + filters.value();
             Key key = new Key("mimuw", aggregateSetName(action), keyName);
-            log.info(timestamp + ", " + keyName);
-            log.info("jazdunia");
-            int count = 0;
-            int sumPrice = 0;
+            long count = 0;
+            long sumPrice = 0;
             try {
-                Record record = client.operate(null, key, Operation.get("count"), Operation.get("sumPrice"));
-                count = record.getInt("count");
-                sumPrice = record.getInt("sumPrice");
+                Record record = client.get(null, key);
+                count = record.getLong("count");
+                sumPrice = record.getLong("sumPrice");
             } catch (Exception e) {
                 log.info(e.getMessage());
-                log.info(e.getLocalizedMessage());
-                log.info(e.getClass().toString());
             }
-            log.info(String.valueOf(count));
-            log.info(String.valueOf(sumPrice));
 
             List<String> row = new ArrayList<>();
             row.add(timestamp + ":00");
@@ -235,7 +219,6 @@ public class UserTagService {
             if (categoryId != null) row.add(categoryId);
             if (aggregateCount) row.add(String.valueOf(count));
             if (aggregatePrice) row.add(String.valueOf(sumPrice));
-            log.info(row.toString());
             rows.add(row);
         }
 
