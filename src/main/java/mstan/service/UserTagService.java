@@ -112,7 +112,7 @@ public class UserTagService {
     }
 
     // Runs every minute
-    @Scheduled(fixedRate = 60000, initialDelayString = "${random.int(60000)}")
+    @Scheduled(fixedRate = 30000, initialDelayString = "${random.int(30000)}")
     public void execute() {
         log.info("execute");
         for (Map.Entry<String, Map<Filters, Stats>> bucket : statManager.drain().entrySet()) {
