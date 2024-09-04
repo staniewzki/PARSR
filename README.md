@@ -6,7 +6,7 @@ The configuration is as follows:
 Aerospike setup:
 ```
 cd aerospike
-ansible-playbook --extra-vars "ansible_user=<user> ansible_password=<password> ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" -i hosts aerospike.yaml
+ansible-playbook -i hosts aerospike.yaml
 ```
 
 To deploy the app itself:

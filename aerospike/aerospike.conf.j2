@@ -48,25 +48,25 @@ mod-lua {
 
 namespace mimuw {
 	replication-factor 2
-	memory-size 7G
-  nsup-period 15
+	memory-size 5G
+	nsup-period 15
 
-  stop-writes-pct 92
-  high-water-memory-pct 90
-  high-water-disk-pct 90
+  	stop-writes-pct 92
+	high-water-memory-pct 90
+	high-water-disk-pct 90
 
-	storage-engine memory
+	# storage-engine memory
 
 	# To use file storage backing, comment out the line above and use the
 	# following lines instead.
-	#storage-engine device {
-  #  filesize 6G
-	#	file /opt/aerospike/data/mimuw1.dat
-  #  file /opt/aerospike/data/mimuw2.dat
-  #  file /opt/aerospike/data/mimuw3.dat
-  #  file /opt/aerospike/data/mimuw4.dat
-	#
-  #  defrag-lwm-pct 90
-  #  defrag-sleep 50
-	#}
+	storage-engine device {
+  		filesize 4608M
+		file /opt/aerospike/data/mimuw1.dat
+  		file /opt/aerospike/data/mimuw2.dat
+  		file /opt/aerospike/data/mimuw3.dat
+  		file /opt/aerospike/data/mimuw4.dat
+
+  		defrag-lwm-pct 90
+  		defrag-sleep 50
+	}
 }
