@@ -60,6 +60,9 @@ public class UserTagService {
         return defaultClientPolicy;
     }
 
+    private final WritePolicy defaultWritePolicy;
+    private final WritePolicy expiringData;
+
     public UserTagService(ObjectMapper objectMapper, @Value("${aerospike.seeds}") String[] aerospikeSeeds, @Value("${aerospike.port}") int port) {
         this.client = new AerospikeClient(defaultClientPolicy(), Arrays.stream(aerospikeSeeds).map(seed -> new Host(seed, port)).toArray(Host[]::new));
         this.client.truncate(null, "mimuw", "events", null);
@@ -67,6 +70,9 @@ public class UserTagService {
         this.client.truncate(null, "mimuw", "aggregate-buy", null);
         this.client.truncate(null, "mimuw", "aggregate-view", null);
         this.objectMapper = objectMapper;
+        this.defaultWritePolicy = new WritePolicy();
+        this.expiringData = new WritePolicy();
+        this.expiringData.expiration = 24 * 3600;  // 24h
     }
 
     @Async
@@ -75,7 +81,7 @@ public class UserTagService {
 
         Key counterKey = new Key("mimuw", "index", eventKey(event.getCookie(), event.getAction()));
         Record record = client.operate(
-            new WritePolicy(),
+            defaultWritePolicy,
             counterKey,
             Operation.add(new Bin("counter", 1)),
             Operation.get("counter")
@@ -92,10 +98,10 @@ public class UserTagService {
 
         Key eventKey = new Key("mimuw", "events", eventKey(event.getCookie(), event.getAction()));
         if (index < kMaxLimit) {
-            client.operate(new WritePolicy(), eventKey,
+            client.operate(defaultWritePolicy, eventKey,
                 ListOperation.append("eventList", com.aerospike.client.Value.get(json)));
         } else {
-            client.operate(new WritePolicy(), eventKey,
+            client.operate(defaultWritePolicy, eventKey,
                 ListOperation.set("eventList", index % kMaxLimit, com.aerospike.client.Value.get(json)));
         }
 
@@ -121,7 +127,7 @@ public class UserTagService {
                 String keyName = bucket.getKey() + entry.getKey().value();
                 Key key = new Key("mimuw", aggregateSetName(action), keyName);
                 client.operate(
-                    new WritePolicy(),
+                    expiringData,
                     key,
                     Operation.add(new Bin("count", entry.getValue().getCount())),
                     Operation.add(new Bin("sumPrice", entry.getValue().getSumPrice()))
@@ -144,7 +150,7 @@ public class UserTagService {
 
     private List<UserTagEvent> fetchEventsByAction(String cookie, Action action, TimeRange range, int limit) {
         Key key = new Key("mimuw", "events", eventKey(cookie, action));
-        Record record = client.operate(new WritePolicy(), key,
+        Record record = client.operate(defaultWritePolicy, key,
             ListOperation.getByIndexRange("eventList", 0, ListReturnType.VALUE));
 
         try {
