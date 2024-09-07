@@ -1,7 +1,7 @@
 The configuration is as follows:
 - 1 load balancer node
-- 4 aerospike nodes
-- 5 http server nodes
+- 6 aerospike nodes
+- 3 http server nodes
 
 Aerospike setup:
 ```
