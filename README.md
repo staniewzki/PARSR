@@ -20,5 +20,5 @@ To launch the load balancer:
 ```
 cd load_balancer
 sudo docker build -t my-proxy .
-sudo docker run --network=host --privileged my-proxy
+sudo docker run --network=host --privileged --log-driver=json-file --log-opt max-size=1g my-proxy
 ```
